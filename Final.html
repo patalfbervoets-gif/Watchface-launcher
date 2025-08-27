@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patrick’s Watch Face Showcase</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* iframe will be positioned & scaled via JS */
+    iframe {
+      position: absolute;
+      width: 105%;
+      height: 105%;
+      border: none;
+      z-index: 1;
+      transform-origin: center center;
+    }
+
+    /* canvas draws your mask (cover) on top */
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      background: transparent;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <iframe
+      src="https://www.facer.io/w/zs6pDpzmRW/showcase?prev=~2Fwatchface~2Fzs6pDpzmRW&watchModel=fossilqmarshal"
+      allowfullscreen>
+    </iframe>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <script>
+    (function() {
+      // —— CHANGE THESE VALUES —— 
+      // 1) IFRAME  
+      const xOffset       =   0;    // + move right, – move left
+      const yOffset       =  30;    // + move down,  – move up
+      const iframeScale   =  1.95;   // overall zoom of your watchface
+
+      // 2) MASK (COVER)  
+      const maskScaleMult = 1.45;   // stretch/shrink factor for the PNG
+      const maskOffsetX   =   0;    // ← set to 0 to center cover horizontally
+      const maskOffsetY   =   0;    // ← set to 0 to center cover vertically
+
+      // — END TWEAKABLE ZONE —
+
+      // position & scale the iframe immediately
+      const iframe = document.querySelector('iframe');
+      iframe.style.top       = `calc(50% + ${yOffset}px)`;
+      iframe.style.left      = `calc(50% + ${xOffset}px)`;
+      iframe.style.transform = `translate(-50%, -50%) scale(${iframeScale})`;
+
+      // prepare canvas & draw the mask
+      const canvas = document.getElementById('canvas'),
+            ctx    = canvas.getContext('2d'),
+            img    = new Image();
+
+      img.src = 'mask.png';
+
+      function resizeCanvas() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        drawMask();
+      }
+
+      function drawMask() {
+        if (!img.complete) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // compute base scale to cover viewport, then apply your multiplier
+        let scale = Math.min(
+          canvas.width  / img.width,
+          canvas.height / img.height
+        ) * maskScaleMult;
+
+        // center + your offsets
+        const w = img.width  * scale,
+              h = img.height * scale,
+              x = (canvas.width  - w) / 2 + maskOffsetX,
+              y = (canvas.height - h) / 2 + maskOffsetY;
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(img, x, y, w, h);
+      }
+
+      img.onload               = resizeCanvas;
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();  // initial draw
+    })();
+  </script>
+</body>
+</html>
