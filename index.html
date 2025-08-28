@@ -27,6 +27,14 @@
       border: none;
       z-index: 1;
       transform-origin: center center;
+      top: calc(50% + 30px); /* yOffset */
+      left: calc(50% + 0px);  /* xOffset */
+      transform: translate(-50%, -50%) scale(1.95); /* iframeScale */
+      visibility: hidden;
+    }
+
+    iframe.active {
+      visibility: visible;
     }
 
     canvas {
@@ -44,48 +52,20 @@
 </head>
 <body>
   <div id="container">
-    <iframe id="faceFrame"
-      src="https://www.facer.io/w/zs6pDpzmRW/showcase?prev=~2Fwatchface~2Fzs6pDpzmRW&watchModel=fossilqmarshal"
-      allowfullscreen>
-    </iframe>
+    <iframe class="active" src="https://www.facer.io/w/zs6pDpzmRW/showcase?prev=~2Fwatchface~2Fzs6pDpzmRW&watchModel=fossilqmarshal"></iframe>
+    <iframe src="https://www.facer.io/w/JsydeiEkmy/showcase?prev=~2Fwatchface~2FJsydeiEkmy&watchModel=gw5prodark"></iframe>
+    <iframe src="https://www.facer.io/w/S2Z9tfbuh8/showcase?prev=~2Fwatchface~2FS2Z9tfbuh8&watchModel=fossilqmarshal"></iframe>
+    <iframe src="https://www.facer.io/w/RsnQzFDYgg/showcase?prev=~2Fwatchface~2FRsnQzFDYgg&watchModel=fossilqmarshal"></iframe>
+    <iframe src="https://www.facer.io/w/02SyoSaxx9/showcase?prev=~2Fwatchface~2F02SyoSaxx9&watchModel=zenwatch3"></iframe>
     <canvas id="canvas"></canvas>
   </div>
 
   <script>
     (function() {
-      // —— TWEAKABLE SETTINGS ——
-      const xOffset       =   0;
-      const yOffset       =  30;
-      const iframeScale   =  1.95;
-
       const maskScaleMult = 1.45;
-      const maskOffsetX   =   0;
-      const maskOffsetY   =   0;
+      const maskOffsetX   = 0;
+      const maskOffsetY   = 0;
 
-      const faceLinks = [
-        "https://www.facer.io/w/zs6pDpzmRW/showcase?prev=~2Fwatchface~2Fzs6pDpzmRW&watchModel=fossilqmarshal",
-        "https://www.facer.io/w/JsydeiEkmy/showcase?prev=~2Fwatchface~2FJsydeiEkmy&watchModel=gw5prodark",
-        "https://www.facer.io/w/S2Z9tfbuh8/showcase?prev=~2Fwatchface~2FS2Z9tfbuh8&watchModel=fossilqmarshal",
-        "https://www.facer.io/w/RsnQzFDYgg/showcase?prev=~2Fwatchface~2FRsnQzFDYgg&watchModel=fossilqmarshal",
-        "https://www.facer.io/w/02SyoSaxx9/showcase?prev=~2Fwatchface~2F02SyoSaxx9&watchModel=zenwatch3"
-      ];
-
-      let currentIndex = 0;
-      const iframe = document.getElementById('faceFrame');
-
-      function updateFace() {
-        currentIndex = (currentIndex + 1) % faceLinks.length;
-        iframe.src = faceLinks[currentIndex];
-      }
-
-      setInterval(updateFace, 10000); // switch every 10 seconds
-
-      // Position & scale the iframe
-      iframe.style.top       = `calc(50% + ${yOffset}px)`;
-      iframe.style.left      = `calc(50% + ${xOffset}px)`;
-      iframe.style.transform = `translate(-50%, -50%) scale(${iframeScale})`;
-
-      // Draw the mask
       const canvas = document.getElementById('canvas'),
             ctx    = canvas.getContext('2d'),
             img    = new Image();
@@ -119,6 +99,16 @@
       img.onload = resizeCanvas;
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
+
+      // Rotation logic
+      const iframes = document.querySelectorAll('iframe');
+      let current = 0;
+
+      setInterval(() => {
+        iframes[current].classList.remove('active');
+        current = (current + 1) % iframes.length;
+        iframes[current].classList.add('active');
+      }, 10000); // every 10 seconds
     })();
   </script>
 </body>
