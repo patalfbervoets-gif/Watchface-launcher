@@ -20,7 +20,6 @@
       height: 100%;
     }
 
-    /* iframe will be positioned & scaled via JS */
     iframe {
       position: absolute;
       width: 105%;
@@ -30,7 +29,6 @@
       transform-origin: center center;
     }
 
-    /* canvas draws your mask (cover) on top */
     canvas {
       position: absolute;
       top: 0;
@@ -46,7 +44,7 @@
 </head>
 <body>
   <div id="container">
-    <iframe
+    <iframe id="faceFrame"
       src="https://www.facer.io/w/zs6pDpzmRW/showcase?prev=~2Fwatchface~2Fzs6pDpzmRW&watchModel=fossilqmarshal"
       allowfullscreen>
     </iframe>
@@ -55,26 +53,39 @@
 
   <script>
     (function() {
-      // —— CHANGE THESE VALUES —— 
-      // 1) IFRAME  
-      const xOffset       =   0;    // + move right, – move left
-      const yOffset       =  30;    // + move down,  – move up
-      const iframeScale   =  1.95;   // overall zoom of your watchface
+      // —— TWEAKABLE SETTINGS ——
+      const xOffset       =   0;
+      const yOffset       =  30;
+      const iframeScale   =  1.95;
 
-      // 2) MASK (COVER)  
-      const maskScaleMult = 1.45;   // stretch/shrink factor for the PNG
-      const maskOffsetX   =   0;    // ← set to 0 to center cover horizontally
-      const maskOffsetY   =   0;    // ← set to 0 to center cover vertically
+      const maskScaleMult = 1.45;
+      const maskOffsetX   =   0;
+      const maskOffsetY   =   0;
 
-      // — END TWEAKABLE ZONE —
+      const faceLinks = [
+        "https://www.facer.io/w/zs6pDpzmRW/showcase?prev=~2Fwatchface~2Fzs6pDpzmRW&watchModel=fossilqmarshal",
+        "https://www.facer.io/w/JsydeiEkmy/showcase?prev=~2Fwatchface~2FJsydeiEkmy&watchModel=gw5prodark",
+        "https://www.facer.io/w/S2Z9tfbuh8/showcase?prev=~2Fwatchface~2FS2Z9tfbuh8&watchModel=fossilqmarshal",
+        "https://www.facer.io/w/RsnQzFDYgg/showcase?prev=~2Fwatchface~2FRsnQzFDYgg&watchModel=fossilqmarshal",
+        "https://www.facer.io/w/02SyoSaxx9/showcase?prev=~2Fwatchface~2F02SyoSaxx9&watchModel=zenwatch3"
+      ];
 
-      // position & scale the iframe immediately
-      const iframe = document.querySelector('iframe');
+      let currentIndex = 0;
+      const iframe = document.getElementById('faceFrame');
+
+      function updateFace() {
+        currentIndex = (currentIndex + 1) % faceLinks.length;
+        iframe.src = faceLinks[currentIndex];
+      }
+
+      setInterval(updateFace, 10000); // switch every 10 seconds
+
+      // Position & scale the iframe
       iframe.style.top       = `calc(50% + ${yOffset}px)`;
       iframe.style.left      = `calc(50% + ${xOffset}px)`;
       iframe.style.transform = `translate(-50%, -50%) scale(${iframeScale})`;
 
-      // prepare canvas & draw the mask
+      // Draw the mask
       const canvas = document.getElementById('canvas'),
             ctx    = canvas.getContext('2d'),
             img    = new Image();
@@ -91,13 +102,11 @@
         if (!img.complete) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // compute base scale to cover viewport, then apply your multiplier
         let scale = Math.min(
           canvas.width  / img.width,
           canvas.height / img.height
         ) * maskScaleMult;
 
-        // center + your offsets
         const w = img.width  * scale,
               h = img.height * scale,
               x = (canvas.width  - w) / 2 + maskOffsetX,
@@ -107,9 +116,9 @@
         ctx.drawImage(img, x, y, w, h);
       }
 
-      img.onload               = resizeCanvas;
+      img.onload = resizeCanvas;
       window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();  // initial draw
+      resizeCanvas();
     })();
   </script>
 </body>
